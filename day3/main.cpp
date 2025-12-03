@@ -42,13 +42,6 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-struct Index
-{
-    int sum;
-    int a;
-    int b;
-};
-
 int part1(std::vector<Bank> &banks)
 {
     int sum = 0;
