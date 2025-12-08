@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+# Advent of Code input
+example_input.txt
+input.txt
