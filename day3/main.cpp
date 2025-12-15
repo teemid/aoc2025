@@ -11,6 +11,7 @@ struct Bank
 };
 
 int part1(std::vector<Bank> &banks);
+int64_t part2(std::vector<Bank> &banks, int digits);
 void print(const std::vector<Bank> &banks);
 
 int main(int argc, char *argv[])
@@ -34,10 +35,9 @@ int main(int argc, char *argv[])
         banks.push_back(bank);
     }
 
-    int sum = part1(banks);
+    int64_t sum = part2(banks, 12);
 
-    std::cout << "Part1 sum = " << sum << std::endl;
-
+    std::cout << "sum = " << sum << std::endl;
 
     return 0;
 }
@@ -70,6 +70,46 @@ int part1(std::vector<Bank> &banks)
         }
 
         int joltage = first * 10 + second;
+
+        sum += joltage;
+    }
+
+    return sum;
+}
+
+int64_t part2(std::vector<Bank> &banks, int digits)
+{
+    int64_t sum = 0;
+
+    for (Bank &bank : banks)
+    {
+        int64_t joltage = 0;
+        int remaining_digits = digits - 1;
+        int last_index = 0;
+        for (int i = 0; i < digits; i++)
+        {
+            joltage *= 10;
+
+            int value = 0;
+            int index = last_index;
+            int end_index = bank.batteries.size() - remaining_digits;
+            for (int i = last_index; i < end_index; i++)
+            {
+                if (bank.batteries[i] > value)
+                {
+                    value = bank.batteries[i];
+                    index = i;
+                }
+            }
+
+            joltage += value;
+            last_index = index + 1;
+            remaining_digits -= 1;
+        }
+
+#ifdef AOC_DEBUG
+        std::cout << "Battery joltage = " << joltage << std::endl;
+#endif
 
         sum += joltage;
     }
