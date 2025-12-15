@@ -5,7 +5,8 @@
 #include <vector>
 
 
-void part1(const std::vector<std::vector<char>> &map);
+int part1(const std::vector<std::vector<char>> &map, std::vector<std::vector<char>> &out);
+void part2(std::vector<std::vector<char>> &map);
 void print(const std::vector<std::vector<char>> &map);
 
 int main(int argc, char *argv[])
@@ -29,16 +30,13 @@ int main(int argc, char *argv[])
         map.push_back(l);
     }
 
-    print(map);
-    part1(map);
+    part2(map);
 
     return 0;
 }
 
-void part1(const std::vector<std::vector<char>> &map)
+int part1(const std::vector<std::vector<char>> &map, std::vector<std::vector<char>> &out)
 {
-    std::vector<std::vector<char>> out;
-
     int accessible = 0;
     int height = map.size();
     for (int y = 0; y < height; y++)
@@ -46,8 +44,6 @@ void part1(const std::vector<std::vector<char>> &map)
         const std::vector<char> &line = map[y];
 
         static const std::vector<char> dummy(line.size(), '.');
-
-        out.push_back(dummy);
 
         const std::vector<char> &up = (y == 0) ? dummy : map[y - 1];
         const std::vector<char> &down = (y == height - 1) ? dummy : map[y + 1];
@@ -88,16 +84,43 @@ void part1(const std::vector<std::vector<char>> &map)
                     else
                     {
                         accessible++;
-                        out[y][x] = 'x';
+                        out[y][x] = '.';
                     }
                 } break;
             }
         }
     }
 
-    print(out);
+    return accessible;
+}
 
-    std::cout << "Accessible rolls = " << accessible << std::endl;
+void part2(std::vector<std::vector<char>> &map)
+{
+    std::vector<std::vector<char>> m = map;
+    std::vector<std::vector<char>> out = map;
+
+    int count = 0;
+    for ( ; ; )
+    {
+        int c = part1(m, out);
+        if (c == 0)
+        {
+            break;
+        }
+
+        count += c;
+
+        std::swap(m, out);
+
+#ifdef AOC_DEBUG
+        print(m);
+
+        std::cout << std::endl;
+#endif
+
+    }
+
+    std::cout << "Can remove a total of " << count << " rolls." << std::endl;
 }
 
 void print(const std::vector<std::vector<char>> &map)
