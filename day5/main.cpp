@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
         if (line.empty())
         {
             in_available_ingredients = true;
+            continue;
         }
 
         std::istringstream iss(line);
@@ -57,8 +58,9 @@ int main(int argc, char *argv[])
         }
     }
 
+#ifdef AOC_DEBUG
     std::cout << "Available:" << std::endl;
-    for (int64_t i : available_ingredients)
+    for (const int64_t i : available_ingredients)
     {
         std::cout << i << std::endl;
     }
@@ -68,6 +70,7 @@ int main(int argc, char *argv[])
     {
         std::cout << range.start << "-" << range.stop << std::endl;
     }
+#endif
 
     int64_t count = part1(available_ingredients, fresh_ingredients);
 
