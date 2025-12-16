@@ -9,6 +9,7 @@
 
 enum class Op
 {
+    None,
     Add,
     Mult, 
 };
@@ -19,9 +20,17 @@ struct HomeworkPart1
     std::vector<Op> ops;
 };
 
+struct HomeworkPart2
+{
+    std::vector<int64_t> columns;
+    std::vector<Op> ops;
+};
+
 void parse_part1(std::ifstream &fs, HomeworkPart1 &homework);
+void parse_part2(std::ifstream &fs, HomeworkPart2 &homework);
 void print(const HomeworkPart1 &homework);
 int64_t part1(const HomeworkPart1 &homework);
+int64_t part2(const HomeworkPart2 &homework);
 
 int main(int argc, char *argv[])
 {
@@ -29,9 +38,9 @@ int main(int argc, char *argv[])
 
     std::ifstream fs(filename);
 
-    HomeworkPart1 homework;
-    parse_part1(fs, homework);
-    int64_t total = part1(homework);
+    HomeworkPart2 homework;
+    parse_part2(fs, homework);
+    int64_t total = part2(homework);
 
     std::cout << "total = " << total << std::endl;
 
@@ -56,12 +65,12 @@ void print(const HomeworkPart1 &homework)
         {
             case Op::Add: std::cout << "+ "; break;
             case Op::Mult: std::cout << "* "; break;
+            default: { assert(false); } break;
         }
     }
 
     std::cout << std::endl;
 }
-
 
 void parse_part1(std::ifstream &fs, HomeworkPart1 &homework)
 {
@@ -125,6 +134,10 @@ int64_t part1(const HomeworkPart1 &homework)
 
                 results.push_back(sum);
             } break;
+            case Op::None:
+            {
+                assert(false);
+            } break;
         }
     }
 
@@ -136,3 +149,109 @@ int64_t part1(const HomeworkPart1 &homework)
 
     return total;
 }
+
+void parse_part2(std::ifstream &fs, HomeworkPart2 &homework)
+{
+    std::string line;
+    std::vector<char> operations;
+    std::vector<std::string> columns;
+    while (std::getline(fs, line))
+    {
+        if (operations.size() == 0)
+        {
+            operations.resize(line.size(), ' ');
+            columns.resize(line.size());
+        }
+
+        for (int column = 0; column < line.size(); column++)
+        {
+            char c = line[column];
+            switch (c)
+            {
+                case ' ': continue;
+                case '+':
+                case '*':
+                {
+                    operations[column] = c;
+                } break;
+                default:
+                {
+                    std::string &s = columns[column];
+                    s.push_back(c);
+                }
+            }
+        }
+    }
+
+    homework.ops.resize(columns.size());
+    homework.columns.resize(columns.size());
+
+    for (int i = 0; i < columns.size(); i++)
+    {
+        const std::string &column = columns[i];
+
+        std::istringstream iss(column);
+        int64_t value = 0;
+
+        iss >> value;
+
+        homework.columns[i] = value;
+        
+        switch (operations[i])
+        {
+            case ' ': { homework.ops[i] = Op::None; } break;
+            case '+': { homework.ops[i] = Op::Add; } break;
+            case '*': { homework.ops[i] = Op::Mult; } break;
+            default: { assert(false); } break;
+        }
+    }
+}
+
+int64_t part2(const HomeworkPart2 &homework)
+{
+    int64_t total = 0;
+
+    std::vector<int64_t> operands;
+    for (int column = homework.columns.size() - 1; column >= 0; column--)
+    {
+        switch (homework.ops[column])
+        {
+            case Op::None: { operands.push_back(homework.columns[column]); } break;
+            case Op::Add:
+            {
+                operands.push_back(homework.columns[column]);
+
+                int64_t sum = 0;
+                for (int64_t operand : operands)
+                {
+                    sum += operand;
+                }
+
+                total += sum;
+
+                operands.clear();
+
+                column--;
+            } break;
+            case Op::Mult:
+            {
+                operands.push_back(homework.columns[column]);
+
+                int64_t prod = 1;
+                for (int64_t operand : operands)
+                {
+                    prod *= operand;
+                }
+
+                total += prod;
+
+                operands.clear();
+
+                column--;
+            } break;
+        }
+    }
+
+    return total;
+}
+
